@@ -1,3 +1,4 @@
+import json
 import os
 import subprocess
 from base64 import b64encode
@@ -80,7 +81,7 @@ class UserConfig(BaseModel):
 
     @property
     def cert_file(self) -> Path:
-        return Path(f'{self.cert_name}.crt').absolute()
+        return Path(f'{self.cert_name}.cert').absolute()
 
     def generate_keys(self):
         if self.cert_file.exists() or self.cert_key_file.exists():
@@ -96,6 +97,15 @@ class UserConfig(BaseModel):
         self.cert_fingerprint = _shell(
             'openssl', 'x509', '-in', f'{self.cert_file}', '-noout', '-sha256', '-fingerprint'
         ).strip()
+
+    def public_api_url(self, config: Config):
+        return f'https://{self.public_ip}:{config.API_PORT}/{self.api_prefix}'
+
+    def outline_json(self, config: Config) -> dict[str, str]:
+        return {
+            'apiUrl': self.public_api_url(config),
+            'certSha256': self.cert_fingerprint.replace(':', '')
+        }
 
 
 class InstallationExists(Exception):
@@ -121,6 +131,11 @@ def checks():
     check_docker()
 
 
+def check_firewall(uc: UserConfig, config: Config):
+    r = requests.get(uc.public_api_url(config) + '/access-keys', cert=uc.cert_file, timeout=5)
+    r.raise_for_status()
+
+
 def main():
     config = Config()
 
@@ -139,6 +154,9 @@ def main():
         uc = UserConfig.generate(config)
         uc.generate_keys()
         uc.save()
+
+    # check_firewall(uc, config)
+    print(json.dumps(uc.outline_json(config), indent=4))
 
 
 if __name__ == '__main__':
