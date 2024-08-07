@@ -1,0 +1,18 @@
+services:
+  app:
+    image: ${SB_IMAGE:-quay.io/outline/shadowbox:stable}
+    container_name: shadowbox
+    logging:
+      driver: "local"
+    network_mode: host
+    volumes:
+      - ${STATE_DIR}:${STATE_DIR}
+    environment:
+      SB_API_PORT: 9001
+      SB_API_PREFIX: ${SB_API_PREFIX}
+      SB_CERTIFICATE_FILE: ${STATE_DIR}/shadowbox-selfsigned.cert
+      SB_PRIVATE_KEY_FILE: ${STATE_DIR}/shadowbox-selfsigned.key
+      SB_METRICS_URL: ${SB_METRICS_URL:-}
+    env_file:
+      - etc/environment.yml
+      - etc/environment.production.yml
