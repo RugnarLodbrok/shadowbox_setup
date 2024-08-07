@@ -13,6 +13,3 @@ services:
       SB_CERTIFICATE_FILE: ${STATE_DIR}/shadowbox-selfsigned.cert
       SB_PRIVATE_KEY_FILE: ${STATE_DIR}/shadowbox-selfsigned.key
       SB_METRICS_URL: ${SB_METRICS_URL:-}
-    env_file:
-      - etc/environment.yml
-      - etc/environment.production.yml
