@@ -107,7 +107,7 @@ def _shell(*args: str) -> str:
 
 
 def check_machine_type():
-    machine_type = _shell('uname', '-m')
+    machine_type = _shell('uname', '-m').strip()
     if machine_type != "x86_64":
         raise AssertionError(f"Unsupported machine type: {machine_type}")
 
