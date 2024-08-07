@@ -142,6 +142,4 @@ def main():
 
 
 if __name__ == '__main__':
-    # config = Config()
-    # main()
-    uc = UserConfig.load()
+    main()
