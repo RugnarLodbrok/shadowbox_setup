@@ -12,7 +12,7 @@ from pydantic_settings import BaseSettings
 
 
 class Config(BaseSettings):
-    HOME: Path = Path('/opt/outline')
+    APP_DIR: Path = Path('/opt/outline')
     API_PORT: int = 9001
     IMAGE: str = 'quay.io/outline/shadowbox:stable'
     HOSTNAME_RESOLVERS: list[str] = ['https://ipinfo.io/ip',
@@ -29,7 +29,7 @@ class Config(BaseSettings):
 
     @property
     def state_dir(self) -> Path:
-        return self.HOME / 'persistent_state'
+        return self.APP_DIR / 'persistent_state'
 
 
 class ServerConfig(BaseModel):
@@ -127,8 +127,8 @@ def main():
     checks()
 
     if not config.state_dir.exists():
-        config.HOME.mkdir(mode=0o700, parents=True)
-        subprocess.check_call(['chmod', 'u+s,ug+rwx,o-rwx', config.HOME])
+        config.APP_DIR.mkdir(mode=0o700, parents=True, exist_ok=True)
+        subprocess.check_call(['chmod', 'u+s,ug+rwx,o-rwx', config.APP_DIR])
         config.state_dir.mkdir(exist_ok=True)
         subprocess.check_call(['chmod', 'ug+rwx,g+s,o-rwx', config.state_dir])
     os.chdir(config.state_dir)
