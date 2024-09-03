@@ -30,7 +30,7 @@ class Config(BaseSettings):
 
     @property
     def state_dir(self) -> Path:
-        return self.APP_DIR / 'persistent_state'
+        return self.APP_DIR / 'persistent-state'
 
 
 class ServerConfig(BaseModel):
