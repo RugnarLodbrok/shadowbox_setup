@@ -98,13 +98,16 @@ class UserConfig(BaseModel):
             'openssl', 'x509', '-in', f'{self.cert_file}', '-noout', '-sha256', '-fingerprint'
         ).strip()
 
-    def public_api_url(self, config: Config):
+    def public_api_url(self, config: Config) -> str:
         return f'https://{self.public_ip}:{config.API_PORT}/{self.api_prefix}'
+
+    def local_api_url(self, config: Config) -> str:
+        return f'https://localhost:{config.API_PORT}/{self.api_prefix}'
 
     def outline_json(self, config: Config) -> dict[str, str]:
         return {
             'apiUrl': self.public_api_url(config),
-            'certSha256': self.cert_fingerprint.replace(':', '')
+            'certSha256': self.cert_fingerprint.split('=')[-1].replace(':', '')
         }
 
 
@@ -132,6 +135,7 @@ def checks():
 
 
 def check_firewall(uc: UserConfig, config: Config):
+    r = requests.get(uc.local_api_url(config) + '/access-keys')
     r = requests.get(uc.public_api_url(config) + '/access-keys', cert=uc.cert_file, timeout=5)
     r.raise_for_status()
 
